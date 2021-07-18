@@ -1002,8 +1002,8 @@ function signup_validate_data($data, $files) {
 
     $errors = array();
     $authplugin = get_auth_plugin($CFG->registerauth);
-
-    if ($DB->record_exists('user', array('username' => $data['username'], 'mnethostid' => $CFG->mnet_localhost_id))) {
+   // Gnuwings 17/07/2021 (commented start)
+   /* if ($DB->record_exists('user', array('username' => $data['username'], 'mnethostid' => $CFG->mnet_localhost_id))) {
         $errors['username'] = get_string('usernameexists');
     } else {
         // Check allowed characters.
@@ -1021,7 +1021,8 @@ function signup_validate_data($data, $files) {
     // TODO: maybe we should check all enabled plugins instead.
     if ($authplugin->user_exists($data['username'])) {
         $errors['username'] = get_string('usernameexists');
-    }
+    } */
+   // Gnuwings 17/07/2021 (commented end)
 
     if (! validate_email($data['email'])) {
         $errors['email'] = get_string('invalidemail');
@@ -1066,7 +1067,9 @@ function signup_validate_data($data, $files) {
     // Construct fake user object to check password policy against required information.
     $tempuser = new stdClass();
     $tempuser->id = 1;
-    $tempuser->username = $data['username'];
+    // Gnuwings 17/07/2021 commented
+   // $tempuser->username = $data['username'];
+   
     $tempuser->firstname = $data['firstname'];
     $tempuser->lastname = $data['lastname'];
     $tempuser->email = $data['email'];

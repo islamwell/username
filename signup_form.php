@@ -38,10 +38,11 @@ class login_signup_form extends moodleform implements renderable, templatable {
 
         $mform->addElement('header', 'createuserandpass', get_string('createuserandpass'), '');
 
-
-        $mform->addElement('text', 'username', get_string('username'), 'maxlength="100" size="12" autocapitalize="none"');
+        // Gnuwings 17/07/2021 (added disabled)
+        $mform->addElement('text', 'username', get_string('username'), 'maxlength="100" size="12" autocapitalize="none" disabled');
         $mform->setType('username', PARAM_RAW);
-        $mform->addRule('username', get_string('missingusername'), 'required', null, 'client');
+        // Gnuwings 17/07/2021 (commented)
+        //$mform->addRule('username', get_string('missingusername'), 'required', null, 'client');
 
         if (!empty($CFG->passwordpolicy)){
             $mform->addElement('static', 'passwordpolicyinfo', '', print_password_policy());

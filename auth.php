@@ -137,8 +137,8 @@ class auth_plugin_email extends auth_plugin_base {
 
         // Trigger event.
         \core\event\user_created::create_from_userid($user->id)->trigger();
-
-        if (! send_confirmation_email($user, $confirmationurl)) {
+        // Gnuwings 17/07/2021 changed the function
+        if (! $this->send_confirmation_changed_email($user, $confirmationurl)) {
             print_error('auth_emailnoemail', 'auth_email');
         }
 
@@ -154,7 +154,48 @@ class auth_plugin_email extends auth_plugin_base {
             return true;
         }
     }
+// Gnuwings 17/07/2021 start
+function send_confirmation_changed_email($user, $confirmationurl = null) {
+    global $CFG;
 
+    $site = get_site();
+    $supportuser = core_user::get_support_user();
+
+    $data = new stdClass();
+    $data->username = $user->username;
+    $data->firstname = fullname($user);
+    $data->sitename  = format_string($site->fullname);
+    $data->admin     = generate_email_signoff();
+
+    $subject = get_string('emailconfirmationsubject', '', format_string($site->fullname));
+
+    if (empty($confirmationurl)) {
+        $confirmationurl = '/login/confirm.php';
+    }
+
+    $confirmationurl = new moodle_url($confirmationurl);
+    // Remove data parameter just in case it was included in the confirmation so we can add it manually later.
+    $confirmationurl->remove_params('data');
+    $confirmationpath = $confirmationurl->out(false);
+
+    // We need to custom encode the username to include trailing dots in the link.
+    // Because of this custom encoding we can't use moodle_url directly.
+    // Determine if a query string is present in the confirmation url.
+    $hasquerystring = strpos($confirmationpath, '?') !== false;
+    // Perform normal url encoding of the username first.
+    $username = urlencode($user->username);
+    // Prevent problems with trailing dots not being included as part of link in some mail clients.
+    $username = str_replace('.', '%2E', $username);
+
+    $data->link = $confirmationpath . ( $hasquerystring ? '&' : '?') . 'data='. $user->secret .'/'. $username;
+    
+    $message     = get_string('emailconfirmation', 'auth_email', $data);
+    $messagehtml = text_to_html(get_string('emailconfirmation', 'auth_email', $data), false, false, true);
+
+    // Directly email rather than using the messaging system to ensure its not routed to a popup or jabber.
+    return email_to_user($user, $supportuser, $subject, $message, $messagehtml);
+}
+// Gnuwings 17/07/2021 end
     /**
      * Returns true if plugin allows confirming of new users.
      *

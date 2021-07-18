@@ -83,6 +83,15 @@ if ($mform_signup->is_cancelled()) {
     redirect(get_login_url());
 
 } else if ($user = $mform_signup->get_data()) {
+    // Gnuwings 17/07/2021 start
+    $firstname = core_text::strtolower(trim($user->firstname));
+    $lastname = core_text::strtolower(trim($user->lastname));
+    //Get the first character from lastname.
+    $firstCharacter = substr($lastname, 0, 1);
+    $username = $firstname.''.$firstCharacter.''.rand(0,100);
+    $user->username = $username;
+    // Gnuwings 17/07/2021 end
+    
     // Add missing required fields.
     $user = signup_setup_new_user($user);
 
